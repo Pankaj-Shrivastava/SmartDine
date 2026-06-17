@@ -46,7 +46,8 @@ def test_recommend_schema_valid(client):
         assert "rating" in rec
         assert "cost_for_two" in rec
         assert "explanation" in rec
-        assert rec["explanation"] == "[AI explanation coming in Phase 3]"
+        assert isinstance(rec["explanation"], str)
+        assert len(rec["explanation"]) > 0
         
     # Verify query_metadata
     meta = data["query_metadata"]
