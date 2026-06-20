@@ -27,9 +27,27 @@ SmartDine is an AI-powered restaurant recommendation system inspired by Zomato. 
 
 ## Installation & Setup
 
-Detailed instructions will be added as implementation progresses. Please see the [implementation plan](docs/implementation-plan.md) and [architecture design](docs/architecture.md) for details on the development roadmap.
+[Placeholder: Add installation steps here]
+
+---
+
+## Environment Variables
+
+[Placeholder: Add environment variables details here]
+
+---
+
+## Usage
+
+[Placeholder: Add usage instructions here]
+
+---
+
+## Contributing
+
+[Placeholder: Add contributing guidelines here]
 
 ---
 
 ## Start backend server
-.venv/Scripts/uvicorn src.main:app --port 8000
+`.venv/Scripts/uvicorn src.main:app --port 8000`
