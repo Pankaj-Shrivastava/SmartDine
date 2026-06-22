@@ -4,6 +4,7 @@
 
 @layer base {
   body {
+    color-scheme: dark;
     background-color: #1d1011;
     color: #f7dcdd;
     overflow-x: hidden;

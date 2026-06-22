@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { IoLocationSharp, IoWallet, IoPizza, IoStar, IoSparkles, IoList, IoSearch, IoAlertCircle } from 'react-icons/io5';
+import { IoLocationSharp, IoWallet, IoPizza, IoStar, IoSparkles, IoList, IoSearch, IoAlertCircle, IoRefresh } from 'react-icons/io5';
 
 const LOCATIONS = [
     "Koramangala",
@@ -72,9 +72,9 @@ export function SearchForm({ onSearch, isLoading }) {
                                 value={formData.location} 
                                 onChange={handleChange}
                                 disabled={isLoading}
-                                className={`w-full bg-black/20 border ${error ? 'border-error' : 'border-outline-variant'} rounded-xl px-md py-sm text-on-surface focus:border-secondary focus:ring-1 focus:ring-secondary transition-all outline-none appearance-none`}
+                                className={`w-full bg-black/20 border ${error ? 'border-error' : 'border-outline-variant'} rounded-xl px-md py-sm ${!formData.location ? 'text-on-surface-variant' : 'text-on-surface'} focus:border-secondary focus:ring-1 focus:ring-secondary transition-all outline-none`}
                             >
-                                <option value="" disabled className="bg-background text-on-surface">Select a neighborhood</option>
+                                <option value="" disabled className="bg-background text-on-surface-variant">Select a neighborhood</option>
                                 {LOCATIONS.map(loc => (
                                     <option key={loc} value={loc} className="bg-background text-on-surface">{loc}</option>
                                 ))}
@@ -98,7 +98,7 @@ export function SearchForm({ onSearch, isLoading }) {
                             value={formData.budget} 
                             onChange={handleChange}
                             disabled={isLoading}
-                            className="w-full bg-black/20 border border-outline-variant rounded-xl px-md py-sm text-on-surface focus:border-secondary focus:ring-1 focus:ring-secondary transition-all outline-none appearance-none"
+                            className="w-full bg-black/20 border border-outline-variant rounded-xl px-md py-sm text-on-surface focus:border-secondary focus:ring-1 focus:ring-secondary transition-all outline-none"
                         >
                             <option value="low" className="bg-background text-on-surface">Budget-Friendly (≤ ₹300)</option>
                             <option value="medium" className="bg-background text-on-surface">Mid-Range (₹301–₹800)</option>
@@ -117,9 +117,9 @@ export function SearchForm({ onSearch, isLoading }) {
                             value={formData.cuisine} 
                             onChange={handleChange}
                             disabled={isLoading}
-                            className="w-full bg-black/20 border border-outline-variant rounded-xl px-md py-sm text-on-surface focus:border-secondary focus:ring-1 focus:ring-secondary transition-all outline-none appearance-none"
+                            className={`w-full bg-black/20 border border-outline-variant rounded-xl px-md py-sm ${!formData.cuisine ? 'text-on-surface-variant' : 'text-on-surface'} focus:border-secondary focus:ring-1 focus:ring-secondary transition-all outline-none`}
                         >
-                            <option value="" className="bg-background text-on-surface">Any Cuisine</option>
+                            <option value="" className="bg-background text-on-surface-variant">Any Cuisine</option>
                             {CUISINES.map(cuisine => (
                                 <option key={cuisine} value={cuisine} className="bg-background text-on-surface">{cuisine}</option>
                             ))}
@@ -191,7 +191,7 @@ export function SearchForm({ onSearch, isLoading }) {
                 >
                     {isLoading ? (
                         <>
-                            <span className="material-symbols-outlined animate-spin">refresh</span>
+                            <IoRefresh className="animate-spin text-[24px]" />
                             Searching...
                         </>
                     ) : (
