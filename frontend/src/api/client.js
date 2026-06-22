@@ -1,4 +1,8 @@
-const API_BASE = "/api/v1";
+// In production (Vercel), VITE_API_URL is set to the Railway backend URL at build time.
+// Locally, it is unset so we fall back to the relative path served via Vite's dev proxy.
+const API_BASE = import.meta.env.VITE_API_URL
+  ? `${import.meta.env.VITE_API_URL}/api/v1`
+  : "/api/v1";
 
 export async function fetchRecommendations(formData) {
     try {
