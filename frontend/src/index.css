@@ -1,0 +1,83 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    color-scheme: dark;
+    background-color: #1d1011;
+    color: #f7dcdd;
+    overflow-x: hidden;
+    font-family: 'Inter', sans-serif;
+  }
+}
+
+@layer components {
+  .glass-card {
+    background: rgba(255, 255, 255, 0.04);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+  }
+  
+  .gradient-underline {
+    height: 4px;
+    width: 120px;
+    background: linear-gradient(90deg, #fc536d, #3b93f3);
+    border-radius: 2px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .gradient-underline::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+    animation: slideUnderline 3s infinite;
+  }
+  
+  .rating-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 16px;
+    height: 16px;
+    background: #ffb2b7;
+    cursor: pointer;
+    border-radius: 50%;
+    box-shadow: 0 0 10px rgba(252, 83, 109, 0.5);
+  }
+
+  .gold-border { border-top: 2px solid #FFD700; }
+  .silver-badge { color: #C0C0C0; }
+  .bronze-badge { color: #CD7F32; }
+}
+
+@layer utilities {
+  .animate-fade-up {
+    animation: fadeUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+  .stagger-1 { animation-delay: 0.1s; }
+  .stagger-2 { animation-delay: 0.2s; }
+  .stagger-3 { animation-delay: 0.3s; }
+  .stagger-4 { animation-delay: 0.4s; }
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(40px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideUnderline {
+  0% { left: -100%; }
+  50% { left: 100%; }
+  100% { left: 100%; }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
