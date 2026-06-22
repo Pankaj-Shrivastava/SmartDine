@@ -23,7 +23,7 @@ The implementation is divided into **6 sequential phases**. Each phase must be f
 | **Phase 1** | Data | Dataset ingestion, cleaning, in-memory DataFrame | ~2 hours |
 | **Phase 2** | Filter | Filter engine, validation layer, FastAPI skeleton | ~3 hours |
 | **Phase 3** | LLM | Prompt engineering, Groq API integration, response parsing | ~3 hours |
-| **Phase 4** | UI | Streamlit frontend, backend integration, card display | ~3 hours |
+| **Phase 4** | UI | Vite + React SPA, component architecture, react-icons, dark theme | ~4 hours |
 | **Phase 5** | Hardening | Error handling, caching, testing, documentation | ~3 hours |
 
 ---
@@ -70,8 +70,8 @@ python-dotenv>=1.0.1
 groq>=0.9.0
 tenacity>=8.3.0
 
-# Frontend
-streamlit>=1.34.0
+# Frontend (React — managed via npm in frontend/package.json)
+# No Python dependencies needed for the frontend
 
 # Utilities
 cachetools>=5.3.3
@@ -114,7 +114,10 @@ SmartDine/
 │       ├── routes.py              # API route definitions
 │       └── schemas.py             # Pydantic request/response models
 ├── frontend/
-│   └── app.py                     # Streamlit application
+│   ├── index.html                 # React app entry point
+│   ├── package.json               # npm dependencies (react, react-icons)
+│   ├── vite.config.js             # Vite dev server + API proxy config
+│   └── src/                       # React components, hooks, API client
 ├── tests/
 │   ├── __init__.py
 │   ├── test_ingestion.py
@@ -778,91 +781,272 @@ def parse_llm_response(
 
 ---
 
-## Phase 4 — UI
+## Phase 4 — UI (Vite + React)
 
 ### Objective
 
-Build the Streamlit frontend that provides an intuitive input form for user preferences, calls the FastAPI backend, and renders each recommendation as a styled card displaying name, cuisine, rating, cost, and AI explanation. After this phase, a non-technical user can interact with SmartDine entirely through the browser.
+Build a premium **Vite + React** single-page application that replaces the Streamlit placeholder. The React SPA consumes the existing FastAPI backend via a Vite dev-server proxy, using a component-based architecture with vanilla CSS, `react-icons` (Ionicons 5) for professional SVG icons, glassmorphism styling, and micro-animations. After this phase, a non-technical user can interact with SmartDine entirely through the browser at `localhost:5173`.
+
+---
+
+### Architecture
+
+```
+┌─────────────────────────┐         ┌─────────────────────────┐
+│   Vite + React SPA      │  HTTP   │   FastAPI Backend        │
+│   localhost:5173         │────────▶│   localhost:8000         │
+│                          │  Proxy  │                          │
+│   ┌─ App ─────────────┐ │         │   POST /api/v1/recommend │
+│   │  Hero              │ │         │   GET  /health           │
+│   │  SearchForm        │ │         └─────────────────────────┘
+│   │  StatsBar          │ │
+│   │  ResultsHeader     │ │
+│   │  RecommendationCard│ │
+│   │  SkeletonCard      │ │
+│   │  EmptyState        │ │
+│   │  ErrorBanner       │ │
+│   └────────────────────┘ │
+└─────────────────────────┘
+```
+
+### Frontend File Structure
+
+```
+frontend/
+├── index.html                     # Entry point — loads React app
+├── package.json                   # Dependencies (react, vite, react-icons)
+├── vite.config.js                 # Dev server config + API proxy
+├── public/
+│   └── favicon.ico
+├── src/
+│   ├── main.jsx                   # ReactDOM.createRoot entry
+│   ├── App.jsx                    # Root component — layout orchestrator
+│   ├── App.css                    # App-level layout styles
+│   ├── index.css                  # Global design tokens, resets, fonts, animations
+│   ├── api/
+│   │   └── client.js              # Fetch wrapper — calls FastAPI
+│   ├── hooks/
+│   │   └── useRecommendations.js  # Custom hook — search state + API calls
+│   └── components/
+│       ├── Hero/
+│       │   ├── Hero.jsx
+│       │   └── Hero.css
+│       ├── SearchForm/
+│       │   ├── SearchForm.jsx
+│       │   └── SearchForm.css
+│       ├── RecommendationCard/
+│       │   ├── RecommendationCard.jsx
+│       │   └── RecommendationCard.css
+│       ├── ResultsHeader/
+│       │   ├── ResultsHeader.jsx
+│       │   └── ResultsHeader.css
+│       ├── StatsBar/
+│       │   ├── StatsBar.jsx
+│       │   └── StatsBar.css
+│       ├── SkeletonCard/
+│       │   ├── SkeletonCard.jsx
+│       │   └── SkeletonCard.css
+│       ├── EmptyState/
+│       │   ├── EmptyState.jsx
+│       │   └── EmptyState.css
+│       └── ErrorBanner/
+│           ├── ErrorBanner.jsx
+│           └── ErrorBanner.css
+```
 
 ---
 
 ### Key Tasks
 
-#### 4.1 Streamlit App Structure
+#### 4.0 Project Setup
 
-- [ ] Create `frontend/app.py` as the Streamlit entrypoint:
-  - Page config: title `"SmartDine 🍽️"`, layout `"centered"`, initial sidebar state `"collapsed"`
-  - Import `requests`, `streamlit as st`
-  - Define `FASTAPI_URL = "http://localhost:8000/api/v1"`
+- [ ] Delete `frontend/app.py` (Streamlit placeholder) and `frontend/__pycache__/`
+- [ ] Initialise Vite + React project inside `frontend/`:
 
-#### 4.2 Sidebar — Input Form
-
-- [ ] Implement the input sidebar with the following widgets:
-
-| Widget | Streamlit Component | Options / Range |
-|---|---|---|
-| Location | `st.text_input` | Placeholder: `"e.g. Koramangala"` |
-| Budget | `st.selectbox` | `["low", "medium", "high"]` |
-| Cuisine | `st.text_input` | Placeholder: `"e.g. Italian (leave blank for any)"` |
-| Minimum Rating | `st.slider` | `0.0 → 5.0`, step `0.5`, default `3.5` |
-| Additional Preferences | `st.text_area` | Placeholder: `"e.g. family-friendly, outdoor seating"` |
-| Number of Recommendations | `st.number_input` | `1 → 10`, default `5` |
-| Submit Button | `st.button` | `"🍽️ Find Restaurants"` |
-
-#### 4.3 API Call & State Management
-
-- [ ] On form submit, call `POST {FASTAPI_URL}/recommend` via `requests.post()`:
-  - Display a `st.spinner("Searching and generating recommendations...")` while waiting
-  - On HTTP 200: parse JSON and store in `st.session_state["recommendations"]`
-  - On HTTP 404: display `st.warning("No restaurants found. Try broadening your search.")`
-  - On any other error or `requests.exceptions.ConnectionError`: display `st.error("Backend service unavailable. Ensure FastAPI is running on port 8000.")`
-
-#### 4.4 Recommendation Cards
-
-- [ ] Render each recommendation as a styled card using `st.container()` with markdown:
-
-```python
-def render_card(rec: dict, rank: int):
-    medal = {1: "🥇", 2: "🥈", 3: "🥉"}.get(rank, f"#{rank}")
-    with st.container():
-        st.markdown(f"""
-        <div style="
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-            border: 1px solid #0f3460;
-            border-radius: 12px;
-            padding: 20px 24px;
-            margin-bottom: 16px;
-        ">
-            <h3 style="color:#e94560; margin:0 0 8px 0;">{medal} {rec['name']}</h3>
-            <p style="color:#adb5bd; margin:0 0 12px 0;">
-                🍽️ <b>{rec['cuisine']}</b> &nbsp;|&nbsp;
-                ⭐ <b>{rec['rating']}/5</b> &nbsp;|&nbsp;
-                💰 <b>₹{rec['cost_for_two']} for two</b>
-            </p>
-            <hr style="border-color:#0f3460; margin:12px 0;">
-            <p style="color:#e2e8f0; margin:0;">
-                💡 <i>{rec['explanation']}</i>
-            </p>
-        </div>
-        """, unsafe_allow_html=True)
+```bash
+cd frontend
+npx -y create-vite@latest ./ -- --template react
+npm install react-icons
 ```
 
-#### 4.5 Header & Metadata Display
+- [ ] Configure `vite.config.js` with an API proxy so the React app can call `/api/v1/recommend` as a relative path:
 
-- [ ] Display app header at the top: `"🍽️ SmartDine"` (h1), subtitle: `"AI-Powered Restaurant Recommendations"`
-- [ ] After results load, display query metadata in a collapsed `st.expander("🔍 Search Details")`:
-  - Location, Budget, Cuisine, Min Rating, Candidates Found
+```javascript
+// frontend/vite.config.js
+import { defineConfig } from "vite";
+import react from "@vitejs/plugin-react";
 
-#### 4.6 How to Run Instructions
+export default defineConfig({
+    plugins: [react()],
+    server: {
+        port: 5173,
+        proxy: {
+            "/api": {
+                target: "http://localhost:8000",
+                changeOrigin: true,
+            },
+        },
+    },
+});
+```
 
-- [ ] Update `README.md` with the dual-terminal startup instructions:
+- [ ] Set up `index.html` with proper `<title>`, meta description, and favicon
+- [ ] Verify `npm run dev` starts on `localhost:5173`
+
+#### 4.1 Design System (`index.css`)
+
+- [ ] Define CSS custom properties (design tokens) for the entire app:
+
+```css
+:root {
+    --bg-primary:     #0a0f1c;
+    --bg-secondary:   #111827;
+    --bg-card:        rgba(255, 255, 255, 0.04);
+    --bg-card-hover:  rgba(255, 255, 255, 0.08);
+    --accent:         #e94560;
+    --accent-soft:    rgba(233, 69, 96, 0.15);
+    --blue:           #4a9eff;
+    --green:          #50c878;
+    --gold:           #f0c040;
+    --text-primary:   #e8ecf1;
+    --text-secondary: #8892a4;
+    --text-muted:     #5a6478;
+    --border:         rgba(255, 255, 255, 0.08);
+    --border-hover:   rgba(233, 69, 96, 0.4);
+    --radius-sm:      8px;
+    --radius-md:      12px;
+    --radius-lg:      16px;
+    --radius-xl:      24px;
+    --shadow-glow:    0 8px 32px rgba(233, 69, 96, 0.1);
+    --font:           'Inter', sans-serif;
+    --transition:     all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+```
+
+- [ ] Import Google Fonts (Inter, weights 300–700) via `@import`
+- [ ] Global reset: `box-sizing: border-box`, zero margins, `background: var(--bg-primary)`, `font-family: var(--font)`
+- [ ] Define `@keyframes`: `fadeInUp`, `shimmer`, `glowPulse`, `float`
+- [ ] Custom scrollbar styles matching the dark theme
+
+#### 4.2 API Layer
+
+- [ ] Create `src/api/client.js` — a `fetch`-based wrapper with typed error handling:
+  - HTTP 200 → `{ success: true, recommendations, metadata }`
+  - HTTP 404 → `{ success: false, errorType: "not_found", message: "..." }`
+  - HTTP 422 → `{ success: false, errorType: "validation", message: "..." }`
+  - `fetch` throws → `{ success: false, errorType: "connection", message: "..." }`
+
+- [ ] Create `src/hooks/useRecommendations.js` — custom React hook managing:
+  - `results` (array or null), `metadata` (object or null)
+  - `isLoading` (boolean), `error` (object or null)
+  - `search(formData)` — async callback that calls the API client
+  - `clearResults()` — resets all state
+
+#### 4.3 Components — Static / Layout
+
+All icons from `react-icons/io5` (Ionicons 5).
+
+- [ ] **`Hero`** — No props. Gradient-text heading with `IoRestaurant` icon, subtitle, animated gradient underline, tagline. Enters with `fadeInUp`.
+
+- [ ] **`EmptyState`** — No props. Large floating `IoRestaurant` icon with `float` animation, heading, subtext, and a tip using `IoInformationCircle`.
+
+- [ ] **`ErrorBanner`** — Props: `type` (`"error"` | `"warning"`), `message`, `onDismiss`. Uses `IoAlertCircle` (red) or `IoWarning` (gold), message text, `IoClose` dismiss button. Enters with `fadeInUp`.
+
+- [ ] **`ResultsHeader`** — Props: `count`. Renders `"✨ Top {count} Picks For You"` with `IoSparkles` icon and animated gradient underline.
+
+- [ ] **`StatsBar`** — Props: `metadata`. Horizontal flex row of pill-shaped chips, each with a `react-icons` icon:
+  - `IoLocationSharp` + location (blue)
+  - `IoWallet` + budget (green)
+  - `IoPizza` + cuisine (accent)
+  - `IoStar` + min rating (gold)
+  - `IoSearch` + candidates found (muted)
+
+#### 4.4 Components — Interactive
+
+- [ ] **`SearchForm`** — Props: `onSearch(formData)`, `isLoading`. Glassmorphism card with 2-column responsive grid (collapses to 1 column on `<768px`):
+  - Row 1: `IoLocationSharp` Location (text input, required) + `IoWallet` Budget (select dropdown)
+  - Row 2: `IoPizza` Cuisine (text input, optional) + `IoStar` Min Rating (range input 0–5, step 0.5)
+  - Row 3: `IoSparkles` Additional Preferences (textarea, full width)
+  - Row 4: `IoOptions` Number of results (number input 1–10) + `IoSearch` Submit button (gradient CTA, disabled while loading)
+  - Inline validation: shows `IoAlertCircle` error if location is empty on submit
+  - All inputs controlled via `useState`
+
+- [ ] **`RecommendationCard`** — Props: `recommendation`, `index`. Glassmorphism card with:
+  - **Rank badge:** `IoTrophy` icon with gold/silver/bronze gradient for ranks 1–3; numeral badge for 4+
+  - **Star rating:** `IoStar` (filled, gold) and `IoStarOutline` (empty, muted)
+  - **Metadata chips:** `IoPizza` cuisine, `IoStar` rating, `IoWallet` cost — each in a pill with category-colored border
+  - **AI Insight section:** `IoSparkles` icon header + explanation text on a slightly darker background
+  - **Animation:** `fadeInUp` with `animation-delay: index * 0.12s` for staggered entrance; `glowPulse` border on hover
+
+- [ ] **`SkeletonCard`** — Props: `count` (default 3). Pulsing shimmer placeholder cards mimicking `RecommendationCard` shape. Uses `shimmer` keyframe animation.
+
+#### 4.5 App Assembly (`App.jsx`)
+
+- [ ] Wire all components with `useRecommendations` hook
+- [ ] Conditional rendering flow: Empty state → Loading skeleton → Error banner / Results
+- [ ] Full data flow: form submit → skeleton cards appear → API call → cards render with staggered animation
+
+```jsx
+function App() {
+    const { results, metadata, isLoading, error, search, clearResults } =
+        useRecommendations();
+    const hasSearched = results !== null || error !== null;
+
+    return (
+        <div className="app">
+            <Hero />
+            <main className="main-content">
+                <SearchForm onSearch={search} isLoading={isLoading} />
+                {error && <ErrorBanner type={...} message={...} onDismiss={clearResults} />}
+                {isLoading && <SkeletonCard count={3} />}
+                {results?.length > 0 && (
+                    <section className="results-section">
+                        <ResultsHeader count={results.length} />
+                        {metadata && <StatsBar metadata={metadata} />}
+                        {results.map((rec, i) => (
+                            <RecommendationCard key={rec.rank} recommendation={rec} index={i} />
+                        ))}
+                    </section>
+                )}
+                {!hasSearched && !isLoading && <EmptyState />}
+            </main>
+        </div>
+    );
+}
+```
+
+#### 4.6 Backend CORS Update
+
+- [ ] Add `CORSMiddleware` to `src/main.py` to allow cross-origin requests from the React dev server:
+
+```python
+from fastapi.middleware.cors import CORSMiddleware
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5173", "http://localhost:3000"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+```
+
+> **Note:** The Vite proxy handles routing in dev, but CORS is still needed for production or direct browser access.
+
+#### 4.7 Documentation Update
+
+- [ ] Update `README.md` with dual-terminal startup instructions:
 
 ```bash
 # Terminal 1 — Start the FastAPI backend
+cd SmartDine
+.venv\Scripts\activate
 uvicorn src.main:app --reload --port 8000
 
-# Terminal 2 — Start the Streamlit frontend
-streamlit run frontend/app.py
+# Terminal 2 — Start the React frontend
+cd SmartDine/frontend
+npm run dev
+# Opens at http://localhost:5173
 ```
 
 ---
@@ -870,17 +1054,24 @@ streamlit run frontend/app.py
 ### Dependencies
 
 > Phase 3 must be complete. `POST /api/v1/recommend` must return real AI-generated recommendations.
+> Node.js (v18+) and npm must be installed.
 
 ---
 
 ### Acceptance Criteria
 
-- [ ] Opening `http://localhost:8501` shows the SmartDine UI with all input widgets visible
-- [ ] Submitting a valid form (e.g., location=`"Koramangala"`, budget=`"medium"`) renders recommendation cards within 5 seconds
-- [ ] Each card displays: restaurant name, cuisine, rating, cost, and a non-empty AI explanation
-- [ ] Submitting with an unknown location shows a `st.warning` (not a Python exception / stack trace)
-- [ ] If FastAPI is not running, the UI shows a friendly `st.error` message
+- [ ] `npm run build` inside `frontend/` completes with zero errors
+- [ ] Opening `http://localhost:5173` shows the dark-themed SmartDine UI with Hero section, Inter font, and empty state
+- [ ] Search form is centered, 2-column layout on desktop, 1-column on mobile (<768px)
+- [ ] Submitting a valid form (e.g., location=`"Koramangala"`, budget=`"medium"`) shows skeleton loading cards → then glassmorphism recommendation cards within 5 seconds
+- [ ] Cards appear with staggered `fadeInUp` animation and show subtle glow on hover
+- [ ] Each card displays: `IoTrophy` rank badge, `IoStar`/`IoStarOutline` star rating, cuisine/cost chips with `react-icons`, and an `IoSparkles` AI Insight section
+- [ ] Stats bar shows metadata as styled pill chips with `react-icons`
+- [ ] Submitting an unknown location shows a styled gold warning banner (not a raw error)
+- [ ] If FastAPI is not running, the UI shows a styled red error banner with a connection message
+- [ ] Error banners can be dismissed with an `IoClose` × button
 - [ ] The UI is usable on a standard 1080p screen without horizontal scrolling
+- [ ] Browser tab shows `"SmartDine — AI Restaurant Recommendations"`
 
 ---
 
@@ -1029,7 +1220,7 @@ async def log_requests(request: Request, call_next):
 | `src/core/prompt_builder.py` | Phase 3 | System + user prompt templates |
 | `src/core/llm_client.py` | Phase 3 | Async Groq API client with retry |
 | `src/core/parser.py` | Phase 3 | LLM JSON → Pydantic model |
-| `frontend/app.py` | Phase 4 | Streamlit UI |
+| `frontend/` | Phase 4 | Vite + React SPA (components, hooks, API client, CSS) |
 | `src/core/cache.py` | Phase 5 | TTL cache for LLM responses |
 | `tests/*.py` | Phase 1–5 | Unit + integration tests |
 | `README.md` | Phase 0 → Phase 5 | Documentation (built up incrementally) |
@@ -1040,7 +1231,7 @@ async def log_requests(request: Request, call_next):
 
 | Layer | Technology | Free? |
 |---|---|---|
-| Frontend | Streamlit | ✅ |
+| Frontend | Vite + React + react-icons | ✅ |
 | Backend API | FastAPI + Uvicorn | ✅ |
 | Data Loading | HF `datasets` | ✅ |
 | Data Processing | Pandas | ✅ |
