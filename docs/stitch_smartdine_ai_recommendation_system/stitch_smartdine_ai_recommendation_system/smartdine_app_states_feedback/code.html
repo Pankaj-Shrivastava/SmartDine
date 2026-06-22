@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>SmartDine | Search Readiness</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&amp;display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            display: inline-block;
+            line-height: 1;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.04);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .glass-modal {
+            background: rgba(255, 255, 255, 0.06);
+            backdrop-filter: blur(24px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+        .animate-float {
+            animation: float 4s ease-in-out infinite;
+        }
+        .pulse-blue {
+            box-shadow: 0 0 0 0 rgba(59, 147, 243, 0.4);
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(59, 147, 243, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(59, 147, 243, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(59, 147, 243, 0); }
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "on-background": "#f7dcdd",
+                      "surface-container-high": "#362627",
+                      "on-secondary-container": "#002a52",
+                      "on-primary-container": "#5b0017",
+                      "outline": "#a9898a",
+                      "primary": "#ffb2b7",
+                      "surface-container-lowest": "#170b0c",
+                      "surface-variant": "#413031",
+                      "on-secondary-fixed-variant": "#004884",
+                      "primary-fixed-dim": "#ffb2b7",
+                      "on-primary": "#67001c",
+                      "on-tertiary": "#003919",
+                      "on-surface-variant": "#e2bebf",
+                      "background": "#1d1011",
+                      "surface": "#1d1011",
+                      "outline-variant": "#5a4042",
+                      "primary-fixed": "#ffdadb",
+                      "on-secondary-fixed": "#001c39",
+                      "on-surface": "#f7dcdd",
+                      "surface-bright": "#463536",
+                      "on-tertiary-fixed": "#00210c",
+                      "surface-dim": "#1d1011",
+                      "secondary-fixed-dim": "#a4c9ff",
+                      "secondary-fixed": "#d4e3ff",
+                      "on-tertiary-fixed-variant": "#005227",
+                      "on-error": "#690005",
+                      "on-primary-fixed-variant": "#91002b",
+                      "surface-tint": "#ffb2b7",
+                      "error-container": "#93000a",
+                      "secondary": "#a4c9ff",
+                      "inverse-on-surface": "#3d2c2d",
+                      "tertiary-container": "#25a55a",
+                      "tertiary": "#66dd8b",
+                      "surface-container": "#2b1c1d",
+                      "error": "#ffb4ab",
+                      "on-secondary": "#00315d",
+                      "on-primary-fixed": "#40000e",
+                      "primary-container": "#fc536d",
+                      "tertiary-fixed": "#83fba5",
+                      "tertiary-fixed-dim": "#66dd8b",
+                      "inverse-primary": "#b71d3f",
+                      "secondary-container": "#3b93f3",
+                      "surface-container-highest": "#413031",
+                      "inverse-surface": "#f7dcdd",
+                      "on-error-container": "#ffdad6",
+                      "surface-container-low": "#261819",
+                      "on-tertiary-container": "#003115"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "2xl": "48px",
+                      "3xl": "64px",
+                      "md": "16px",
+                      "base": "4px",
+                      "lg": "24px",
+                      "sm": "12px",
+                      "xl": "32px",
+                      "xs": "8px"
+              },
+              "fontFamily": {
+                      "display-lg": ["Inter"],
+                      "body-md": ["Inter"],
+                      "caption": ["Inter"],
+                      "label-md": ["Inter"],
+                      "headline-lg-mobile": ["Inter"],
+                      "headline-md": ["Inter"],
+                      "headline-lg": ["Inter"],
+                      "title-lg": ["Inter"],
+                      "body-lg": ["Inter"]
+              },
+              "fontSize": {
+                      "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                      "body-md": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                      "caption": ["12px", {"lineHeight": "16px", "fontWeight": "300"}],
+                      "label-md": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                      "headline-lg-mobile": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                      "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                      "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                      "title-lg": ["20px", {"lineHeight": "28px", "fontWeight": "500"}],
+                      "body-lg": ["16px", {"lineHeight": "24px", "fontWeight": "400"}]
+              }
+            },
+          },
+        }
+    </script>
+</head>
+<body class="bg-background text-on-surface font-body-md selection:bg-primary-container selection:text-white overflow-x-hidden">
+<!-- Background Atmospheric Effect -->
+<div class="fixed inset-0 z-0 pointer-events-none">
+
+<div class="absolute inset-0 bg-gradient-to-b from-background via-transparent to-background"></div>
+</div>
+<!-- Top Navigation Bar -->
+<nav class="fixed top-0 w-full z-50 bg-surface/40 backdrop-blur-md border-b border-white/10 shadow-sm transition-all duration-300">
+<div class="flex justify-between items-center px-xl py-md max-w-7xl mx-auto">
+<div class="flex items-center gap-md">
+<span class="font-display-lg text-display-lg font-bold bg-gradient-to-r from-primary to-primary-container bg-clip-text text-transparent">SmartDine</span>
+</div>
+<div class="hidden md:flex items-center gap-xl">
+<a class="text-primary font-bold border-b-2 border-primary pb-1 font-body-lg text-body-lg" href="#">Discover</a>
+<a class="text-on-surface-variant hover:text-primary transition-colors font-body-lg text-body-lg" href="#">Concierge</a>
+<a class="text-on-surface-variant hover:text-primary transition-colors font-body-lg text-body-lg" href="#">Reservations</a>
+<a class="text-on-surface-variant hover:text-primary transition-colors font-body-lg text-body-lg" href="#">History</a>
+</div>
+<div class="flex items-center gap-md">
+<button class="material-symbols-outlined text-on-surface-variant hover:text-primary transition-all active:scale-95">search</button>
+<button class="bg-primary-container text-on-primary-container px-lg py-xs rounded-full font-label-md hover:opacity-90 transition-all active:scale-95 shadow-lg shadow-primary-container/20">Sign In</button>
+</div>
+</div>
+</nav>
+<main class="relative z-10 pt-32 pb-24 max-w-7xl mx-auto px-xl min-h-screen">
+<!-- Status Banners Section -->
+<section class="mb-xl space-y-md max-w-4xl mx-auto">
+<!-- Error Banner -->
+<div class="glass-modal border-l-4 border-error overflow-hidden rounded-xl animate-in fade-in slide-in-from-top-4 duration-500">
+<div class="px-lg py-md flex items-center justify-between gap-md">
+<div class="flex items-center gap-md">
+<span class="material-symbols-outlined text-error" style="font-variation-settings: 'FILL' 1;">error</span>
+<span class="font-body-md text-on-surface-variant">Cannot connect to the backend. Ensure FastAPI is running on port 8000.</span>
+</div>
+<button class="material-symbols-outlined text-on-surface-variant hover:text-error transition-colors" onclick="this.parentElement.parentElement.remove()">close</button>
+</div>
+</div>
+<!-- Warning Banner -->
+<div class="glass-modal border-l-4 border-tertiary-fixed overflow-hidden rounded-xl animate-in fade-in slide-in-from-top-4 duration-700">
+<div class="px-lg py-md flex items-center justify-between gap-md">
+<div class="flex items-center gap-md">
+<span class="material-symbols-outlined text-tertiary-fixed" style="font-variation-settings: 'FILL' 1;">warning</span>
+<span class="font-body-md text-on-surface-variant">No restaurants found matching your criteria. Try a different location or broaden your filters.</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Search Form Section (Placeholder as requested) -->
+<section class="mb-3xl max-w-4xl mx-auto">
+<div class="glass-card p-xl rounded-2xl">
+<div class="grid grid-cols-1 md:grid-cols-3 gap-lg">
+<div class="flex flex-col gap-xs">
+<label class="font-label-md text-on-surface-variant uppercase tracking-widest px-xs">Location</label>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-md top-1/2 -translate-y-1/2 text-outline">location_on</span>
+<input class="w-full bg-black/20 border border-outline-variant/40 rounded-xl py-md pl-12 pr-md text-on-surface focus:border-secondary focus:ring-0 transition-all font-body-md" placeholder="Where are you dining?" type="text"/>
+</div>
+</div>
+<div class="flex flex-col gap-xs">
+<label class="font-label-md text-on-surface-variant uppercase tracking-widest px-xs">Cuisine</label>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-md top-1/2 -translate-y-1/2 text-outline">restaurant</span>
+<input class="w-full bg-black/20 border border-outline-variant/40 rounded-xl py-md pl-12 pr-md text-on-surface focus:border-secondary focus:ring-0 transition-all font-body-md" placeholder="Italian, Sushi, Vegan..." type="text"/>
+</div>
+</div>
+<div class="flex flex-col gap-xs">
+<label class="font-label-md text-on-surface-variant uppercase tracking-widest px-xs">Budget</label>
+<div class="flex gap-xs">
+<button class="flex-1 py-md border border-outline-variant/40 rounded-xl text-on-surface-variant hover:border-secondary transition-all font-label-md">Low</button>
+<button class="flex-1 py-md border border-secondary bg-secondary/10 rounded-xl text-secondary transition-all font-label-md">Mid</button>
+<button class="flex-1 py-md border border-outline-variant/40 rounded-xl text-on-surface-variant hover:border-secondary transition-all font-label-md">High</button>
+</div>
+</div>
+</div>
+<div class="mt-xl flex justify-end">
+<button class="bg-primary-container text-on-primary-container px-3xl py-md rounded-xl font-title-lg font-bold hover:opacity-90 active:scale-95 transition-all shadow-xl shadow-primary-container/20 flex items-center gap-md">
+<span class="material-symbols-outlined">auto_awesome</span>
+                        Ask AI Assistant
+                    </button>
+</div>
+</div>
+</section>
+<!-- Empty State Section -->
+<section class="flex flex-col items-center justify-center text-center py-2xl max-w-2xl mx-auto space-y-xl">
+<div class="relative">
+<div class="absolute inset-0 bg-primary blur-3xl opacity-10 animate-pulse"></div>
+<div class="animate-float">
+<span class="material-symbols-outlined text-[120px] text-primary/40" style="font-variation-settings: 'wght' 200;">restaurant_menu</span>
+</div>
+</div>
+<div class="space-y-md">
+<h2 class="font-headline-lg text-headline-lg text-on-surface">Ready to discover your next favorite restaurant?</h2>
+<p class="font-body-lg text-body-lg text-on-surface-variant">Fill in your preferences above and let our AI find the perfect dining spot for you.</p>
+</div>
+<div class="glass-card px-xl py-md rounded-full border-primary/20 flex items-center gap-md text-primary-fixed-dim">
+<span class="material-symbols-outlined text-md">info</span>
+<span class="font-body-md">Tip: Try <span class="font-bold underline cursor-pointer hover:text-primary transition-colors">'Koramangala'</span> with <span class="font-bold underline cursor-pointer hover:text-primary transition-colors">'Mid-Range'</span> budget for popular spots</span>
+</div>
+</section>
+</main>
+<!-- Footer -->
+<footer class="w-full mt-2xl border-t border-outline-variant/20 bg-surface-container-lowest relative z-10">
+<div class="flex flex-col md:flex-row justify-between items-center px-xl py-xl max-w-7xl mx-auto gap-lg">
+<div class="flex flex-col gap-xs">
+<span class="font-title-lg text-title-lg text-on-surface font-bold">SmartDine</span>
+<p class="font-caption text-caption text-on-surface-variant">© 2024 SmartDine AI. Gastronomic Precision.</p>
+</div>
+<div class="flex gap-xl">
+<a class="font-caption text-caption text-on-surface-variant hover:text-primary transition-colors opacity-100 hover:opacity-80" href="#">Privacy Policy</a>
+<a class="font-caption text-caption text-on-surface-variant hover:text-primary transition-colors opacity-100 hover:opacity-80" href="#">Terms of Service</a>
+<a class="font-caption text-caption text-on-surface-variant hover:text-primary transition-colors opacity-100 hover:opacity-80" href="#">AI Ethics</a>
+<a class="font-caption text-caption text-on-surface-variant hover:text-primary transition-colors opacity-100 hover:opacity-80" href="#">Partner with Us</a>
+</div>
+</div>
+</footer>
+<script>
+        // Micro-interactions for tips and inputs
+        document.querySelectorAll('.underline').forEach(tip => {
+            tip.addEventListener('click', function() {
+                const text = this.innerText.replace(/'/g, '');
+                // Simulated focus and fill effect
+                console.log(`Setting preference to: ${text}`);
+            });
+        });
+
+        // Interactive background response
+        document.addEventListener('mousemove', (e) => {
+            const x = e.clientX / window.innerWidth;
+            const y = e.clientY / window.innerHeight;
+            // Background elements could shift subtly based on this
+        });
+    </script>
+</body></html>

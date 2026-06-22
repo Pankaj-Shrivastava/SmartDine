@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>SmartDine | Discovery</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind Configuration -->
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                "on-background": "#f7dcdd",
+                "surface-container-high": "#362627",
+                "on-secondary-container": "#002a52",
+                "on-primary-container": "#5b0017",
+                "outline": "#a9898a",
+                "primary": "#ffb2b7",
+                "surface-container-lowest": "#170b0c",
+                "surface-variant": "#413031",
+                "on-secondary-fixed-variant": "#004884",
+                "primary-fixed-dim": "#ffb2b7",
+                "on-primary": "#67001c",
+                "on-tertiary": "#003919",
+                "on-surface-variant": "#e2bebf",
+                "background": "#1d1011",
+                "surface": "#1d1011",
+                "outline-variant": "#5a4042",
+                "primary-fixed": "#ffdadb",
+                "on-secondary-fixed": "#001c39",
+                "on-surface": "#f7dcdd",
+                "surface-bright": "#463536",
+                "on-tertiary-fixed": "#00210c",
+                "surface-dim": "#1d1011",
+                "secondary-fixed-dim": "#a4c9ff",
+                "secondary-fixed": "#d4e3ff",
+                "on-tertiary-fixed-variant": "#005227",
+                "on-error": "#690005",
+                "on-primary-fixed-variant": "#91002b",
+                "surface-tint": "#ffb2b7",
+                "error-container": "#93000a",
+                "secondary": "#a4c9ff",
+                "inverse-on-surface": "#3d2c2d",
+                "tertiary-container": "#25a55a",
+                "tertiary": "#66dd8b",
+                "surface-container": "#2b1c1d",
+                "error": "#ffb4ab",
+                "on-secondary": "#00315d",
+                "on-primary-fixed": "#40000e",
+                "primary-container": "#fc536d",
+                "tertiary-fixed": "#83fba5",
+                "tertiary-fixed-dim": "#66dd8b",
+                "inverse-primary": "#b71d3f",
+                "secondary-container": "#3b93f3",
+                "surface-container-highest": "#413031",
+                "inverse-surface": "#f7dcdd",
+                "on-error-container": "#ffdad6",
+                "surface-container-low": "#261819",
+                "on-tertiary-container": "#003115"
+            },
+            "borderRadius": {
+                "DEFAULT": "0.25rem",
+                "lg": "0.5rem",
+                "xl": "0.75rem",
+                "full": "9999px"
+            },
+            "spacing": {
+                "2xl": "48px",
+                "3xl": "64px",
+                "md": "16px",
+                "base": "4px",
+                "lg": "24px",
+                "sm": "12px",
+                "xl": "32px",
+                "xs": "8px"
+            },
+            "fontFamily": {
+                "display-lg": ["Inter"],
+                "body-md": ["Inter"],
+                "caption": ["Inter"],
+                "label-md": ["Inter"],
+                "headline-lg-mobile": ["Inter"],
+                "headline-md": ["Inter"],
+                "headline-lg": ["Inter"],
+                "title-lg": ["Inter"],
+                "body-lg": ["Inter"]
+            },
+            "fontSize": {
+                "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                "body-md": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                "caption": ["12px", {"lineHeight": "16px", "fontWeight": "300"}],
+                "label-md": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                "headline-lg-mobile": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                "title-lg": ["20px", {"lineHeight": "28px", "fontWeight": "500"}],
+                "body-lg": ["16px", {"lineHeight": "24px", "fontWeight": "400"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body {
+            background-color: #1d1011;
+            color: #f7dcdd;
+            overflow-x: hidden;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.04);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
+        }
+
+        .animate-fade-up {
+            animation: fadeUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(40px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .stagger-1 { animation-delay: 0.1s; }
+        .stagger-2 { animation-delay: 0.2s; }
+        .stagger-3 { animation-delay: 0.3s; }
+        .stagger-4 { animation-delay: 0.4s; }
+
+        .gradient-underline {
+            height: 4px;
+            width: 120px;
+            background: linear-gradient(90deg, #fc536d, #3b93f3);
+            border-radius: 2px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .gradient-underline::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+            animation: slideUnderline 3s infinite;
+        }
+
+        @keyframes slideUnderline {
+            0% { left: -100%; }
+            50% { left: 100%; }
+            100% { left: 100%; }
+        }
+
+        .rating-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 16px;
+            height: 16px;
+            background: #ffb2b7;
+            cursor: pointer;
+            border-radius: 50%;
+            box-shadow: 0 0 10px rgba(252, 83, 109, 0.5);
+        }
+
+        .gold-border { border-top: 2px solid #FFD700; }
+        .silver-badge { color: #C0C0C0; }
+        .bronze-badge { color: #CD7F32; }
+    </style>
+</head>
+<body class="dark bg-background text-on-background min-h-screen">
+<!-- Top Navigation Bar (Shared Component) -->
+<header class="fixed top-0 w-full z-50 bg-surface/40 backdrop-blur-md border-b border-white/10 shadow-sm">
+<div class="flex justify-between items-center px-xl py-md max-w-7xl mx-auto">
+<div class="flex items-center gap-xs">
+<span class="font-display-lg text-display-lg font-bold bg-gradient-to-r from-primary to-primary-container bg-clip-text text-transparent">SmartDine</span>
+</div>
+<nav class="hidden md:flex items-center gap-xl">
+<a class="font-body-lg text-body-lg text-primary font-bold border-b-2 border-primary pb-1" href="#">Discover</a>
+<a class="font-body-lg text-body-lg text-on-surface-variant hover:text-primary transition-all" href="#">Concierge</a>
+<a class="font-body-lg text-body-lg text-on-surface-variant hover:text-primary transition-all" href="#">Reservations</a>
+<a class="font-body-lg text-body-lg text-on-surface-variant hover:text-primary transition-all" href="#">History</a>
+</nav>
+<div class="flex items-center gap-md">
+<button class="font-body-lg text-body-lg text-primary hover:bg-white/5 px-md py-xs rounded-lg transition-all active:scale-95">Sign In</button>
+</div>
+</div>
+</header>
+<main class="pt-32 pb-2xl px-md max-w-[720px] mx-auto space-y-3xl">
+<!-- Hero Section -->
+<section class="text-center space-y-md animate-fade-up">
+<div class="flex justify-center items-center gap-sm mb-xs">
+<span class="material-symbols-outlined text-primary text-[48px]" data-icon="restaurant">restaurant</span>
+<h1 class="font-display-lg text-display-lg bg-gradient-to-r from-primary-container to-secondary-container bg-clip-text text-transparent">
+                    SmartDine
+                </h1>
+</div>
+<div class="flex flex-col items-center gap-xs">
+<p class="font-headline-md text-headline-md text-on-surface">AI-Powered Restaurant Recommendations</p>
+<div class="gradient-underline"></div>
+</div>
+<p class="font-body-lg text-body-lg text-on-surface-variant max-w-lg mx-auto">
+                Discover your perfect dining experience, powered by AI
+            </p>
+</section>
+<!-- Search Form Card -->
+<section class="glass-card p-xl animate-fade-up stagger-1">
+<form class="space-y-lg">
+<div class="grid grid-cols-1 md:grid-cols-2 gap-lg">
+<!-- Location -->
+<div class="space-y-xs">
+<label class="flex items-center gap-xs font-label-md text-label-md text-on-surface-variant">
+<span class="material-symbols-outlined text-[18px]" data-icon="location_on">location_on</span>
+                            Location
+                        </label>
+<div class="relative">
+<input class="w-full bg-black/20 border border-outline-variant rounded-xl px-md py-sm text-on-surface focus:border-secondary focus:ring-1 focus:ring-secondary transition-all outline-none" placeholder="Indiranagar" type="text"/>
+</div>
+</div>
+<!-- Budget -->
+<div class="space-y-xs">
+<label class="flex items-center gap-xs font-label-md text-label-md text-on-surface-variant">
+<span class="material-symbols-outlined text-[18px]" data-icon="account_balance_wallet">account_balance_wallet</span>
+                            Budget for two
+                        </label>
+<select class="w-full bg-black/20 border border-outline-variant rounded-xl px-md py-sm text-on-surface focus:border-secondary focus:ring-1 focus:ring-secondary transition-all outline-none appearance-none">
+<option>Mid-Range (₹301–₹800)</option>
+<option>Budget (₹0–₹300)</option>
+<option>Premium (₹801+)</option>
+</select>
+</div>
+<!-- Cuisine -->
+<div class="space-y-xs">
+<label class="flex items-center gap-xs font-label-md text-label-md text-on-surface-variant">
+<span class="material-symbols-outlined text-[18px]" data-icon="pizza">bia</span>
+                            Cuisine
+                        </label>
+<input class="w-full bg-black/20 border border-outline-variant rounded-xl px-md py-sm text-on-surface focus:border-secondary focus:ring-1 focus:ring-secondary transition-all outline-none" placeholder="Italian, Chinese" type="text"/>
+</div>
+<!-- Results Count -->
+<div class="space-y-xs">
+<label class="flex items-center gap-xs font-label-md text-label-md text-on-surface-variant">
+<span class="material-symbols-outlined text-[18px]" data-icon="format_list_numbered">format_list_numbered</span>
+                            Results
+                        </label>
+<input class="w-full bg-black/20 border border-outline-variant rounded-xl px-md py-sm text-on-surface focus:border-secondary focus:ring-1 focus:ring-secondary transition-all outline-none" max="20" min="1" type="number" value="5"/>
+</div>
+</div>
+<!-- Rating Slider -->
+<div class="space-y-xs">
+<div class="flex justify-between items-center">
+<label class="flex items-center gap-xs font-label-md text-label-md text-on-surface-variant">
+<span class="material-symbols-outlined text-[18px]" data-icon="star">star</span>
+                            Minimum Rating
+                        </label>
+<span class="text-primary font-bold">3.5 / 5.0</span>
+</div>
+<input class="w-full h-1 bg-surface-variant rounded-full appearance-none rating-slider" max="50" min="0" type="range" value="35"/>
+</div>
+<!-- Additional Preferences -->
+<div class="space-y-xs">
+<label class="flex items-center gap-xs font-label-md text-label-md text-on-surface-variant">
+<span class="material-symbols-outlined text-[18px]" data-icon="auto_awesome">auto_awesome</span>
+                        Additional Preferences
+                    </label>
+<textarea class="w-full bg-black/20 border border-outline-variant rounded-xl px-md py-sm text-on-surface focus:border-secondary focus:ring-1 focus:ring-secondary transition-all outline-none resize-none" placeholder="Describe the vibe... (e.g., Rooftop seating, quiet environment, pet friendly)" rows="3"></textarea>
+</div>
+<button class="w-full py-md bg-gradient-to-r from-primary-container to-secondary-container text-on-primary-fixed font-title-lg text-title-lg rounded-xl flex items-center justify-center gap-sm shadow-lg hover:brightness-110 active:scale-[0.98] transition-all">
+<span class="material-symbols-outlined" data-icon="search">search</span>
+                    Find My Perfect Restaurant
+                </button>
+</form>
+</section>
+<!-- Stats Bar & Results Header -->
+<div class="space-y-lg animate-fade-up stagger-2">
+<div class="flex flex-wrap gap-sm">
+<span class="bg-surface-container-high px-md py-xs rounded-full border border-outline-variant/30 text-caption font-caption text-secondary">Indiranagar</span>
+<span class="bg-surface-container-high px-md py-xs rounded-full border border-outline-variant/30 text-caption font-caption text-secondary">Mid-Range</span>
+<span class="bg-surface-container-high px-md py-xs rounded-full border border-outline-variant/30 text-caption font-caption text-secondary">Italian</span>
+<span class="bg-surface-container-high px-md py-xs rounded-full border border-outline-variant/30 text-caption font-caption text-secondary">3.5+ Rating</span>
+</div>
+<div class="flex flex-col items-start gap-xs">
+<h2 class="flex items-center gap-sm font-headline-lg text-headline-lg text-on-surface">
+<span class="material-symbols-outlined text-primary" data-icon="sparkles" style="font-variation-settings: 'FILL' 1;">spark</span>
+                    Top 5 Picks For You
+                </h2>
+<div class="h-1 w-48 bg-gradient-to-r from-primary-container to-secondary-container rounded-full opacity-60"></div>
+</div>
+</div>
+<!-- Recommendation Cards -->
+<div class="space-y-xl">
+<!-- Card 1: Truffles -->
+<article class="glass-card overflow-hidden gold-border hover:shadow-[0_0_20px_rgba(252,83,109,0.15)] transition-all animate-fade-up stagger-3">
+<div class="p-xl flex flex-col md:flex-row gap-lg">
+<div class="relative w-full md:w-32 h-32 flex-shrink-0 rounded-lg overflow-hidden border border-outline-variant/20">
+<img class="w-full h-full object-cover" data-alt="A macro photograph of a decadent gourmet burger from a high-end restaurant, featuring melted cheese and artisanal toppings, shot in a professional food studio with warm cinematic lighting that highlights textures and appetizing details. The mood is luxurious and inviting." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAntwRj7OuxeM0FsIpJr2htxAXTr4FIZzgfYX71LKc36RFF-Dg31wYA9eVgN5IerCkit0HAM8GIrspVcu_zugkgdNHfRSVU0Jfn53T21xbPuOOfQyoY62UYCrD8lNNB8t-5-P01JOLs5x2tybYxotvhOwo_j-dMDHBKf1Nn4FwAPL-ApyaIq-wB0J04Kv0YYIYf3C-6uqly6yKwXIOHMEi9fp9iAcH1H-ndF6fFI3lwhfi7pCL85wbc8ZQ2h94-s6tq2ZRspgcCUxe-"/>
+<div class="absolute top-0 left-0 bg-yellow-500 text-black font-bold px-2 py-1 text-[10px] rounded-br-lg uppercase tracking-wider">Rank #1</div>
+</div>
+<div class="flex-1 space-y-sm">
+<div class="flex justify-between items-start">
+<h3 class="font-headline-md text-headline-md text-on-surface">Truffles</h3>
+<div class="flex items-center gap-xs bg-tertiary/10 text-tertiary px-sm py-[2px] rounded-full">
+<span class="material-symbols-outlined text-[16px]" data-icon="star" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="font-label-md text-label-md">4.6</span>
+</div>
+</div>
+<div class="flex flex-wrap gap-xs">
+<span class="text-caption font-caption text-on-surface-variant">Continental, American</span>
+<span class="text-caption font-caption text-on-surface-variant">•</span>
+<span class="text-caption font-caption text-on-surface-variant">₹650 for two</span>
+</div>
+<div class="bg-primary/5 border-l-4 border-primary p-md rounded-r-lg">
+<p class="font-body-md text-body-md text-primary font-medium italic italic">"Based on your preference for Italian-influenced fusion, Truffles' legendary pasta and customized burger options offer the exact vibrant atmosphere you described."</p>
+</div>
+</div>
+</div>
+</article>
+<!-- Card 2: Pasta Street -->
+<article class="glass-card hover:translate-y-[-4px] transition-all animate-fade-up stagger-4">
+<div class="p-xl flex flex-col md:flex-row gap-lg">
+<div class="relative w-full md:w-32 h-32 flex-shrink-0 rounded-lg overflow-hidden border border-outline-variant/20">
+<img class="w-full h-full object-cover" data-alt="An authentic Italian pasta dish served on a rustic ceramic plate, with freshly grated parmesan and basil leaves. The scene is lit by soft, natural window light in a modern, minimalist restaurant setting with deep navy and coral accents in the background." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBjnCZfrynOXfWFKA7mUfWHkz7VpR6tvPKVe8iC6K7y2IgnitkL6k7--kYqVxQUeQ5B_UokEa0r1VVThZ1uEl7NkZBiTzykMlyBd5AL_ROIexkNiteywSb0vyZT-5_bhKl27CyCoqtuGWPVNWxAYgqZdXEigxdfeuC0-a7a4hyKogyrHtnKvE9mWkGC0u9vT39peo_uo3PvebWmv6eoTylF3h9JMRKtfbzFzolH94uz5vNfFLcCs9HRccnegMbPxvQ1nG9NrmDYIIvq"/>
+<div class="absolute top-0 left-0 bg-gray-400 text-black font-bold px-2 py-1 text-[10px] rounded-br-lg uppercase tracking-wider">Rank #2</div>
+</div>
+<div class="flex-1 space-y-sm">
+<div class="flex justify-between items-start">
+<h3 class="font-headline-md text-headline-md text-on-surface">Pasta Street</h3>
+<div class="flex items-center gap-xs bg-tertiary/10 text-tertiary px-sm py-[2px] rounded-full">
+<span class="material-symbols-outlined text-[16px]" data-icon="star" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="font-label-md text-label-md">4.3</span>
+</div>
+</div>
+<div class="flex flex-wrap gap-xs">
+<span class="text-caption font-caption text-on-surface-variant">Italian, European</span>
+<span class="text-caption font-caption text-on-surface-variant">•</span>
+<span class="text-caption font-caption text-on-surface-variant">₹550 for two</span>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant">Excellent homemade pasta and wood-fired pizzas with a cozy, sophisticated indoor ambiance perfect for quiet conversations.</p>
+</div>
+</div>
+</article>
+<!-- Card 3: Onesta -->
+<article class="glass-card hover:translate-y-[-4px] transition-all animate-fade-up stagger-4">
+<div class="p-xl flex flex-col md:flex-row gap-lg">
+<div class="relative w-full md:w-32 h-32 flex-shrink-0 rounded-lg overflow-hidden border border-outline-variant/20">
+<img class="w-full h-full object-cover" data-alt="A variety of mini-pizzas and gourmet appetizers laid out on a stylish dark table. The lighting is focused and dramatic, capturing the steam rising from the food. The aesthetic is clean, high-tech, and appetizing with electric blue highlights." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBAobkrXz5QgGeIWT7YScGazpP7gZygeNtX2nmZvBmwQhuCCAhrt3Kzafi_SsnJXjHjIdBBqHQk3NfMntT3zfdMthlLxSfkjXbPUa1budSqcv9dAkqYWnd-NC4J7XOGSWnmG3GYeiYghP94XHgiib8tGqwsNx3zTuWKwKOG3c2sjWTXn_LxFjQJuYCh_mYyi5wfZ8yg6_RBZuXXjzP7cpWWWCV_seiosy1Stzf22OzSX_qmRYpwp5SI2NhTMqiMW6FnxnaJykmdskuP"/>
+<div class="absolute top-0 left-0 bg-amber-700 text-white font-bold px-2 py-1 text-[10px] rounded-br-lg uppercase tracking-wider">Rank #3</div>
+</div>
+<div class="flex-1 space-y-sm">
+<div class="flex justify-between items-start">
+<h3 class="font-headline-md text-headline-md text-on-surface">Onesta</h3>
+<div class="flex items-center gap-xs bg-tertiary/10 text-tertiary px-sm py-[2px] rounded-full">
+<span class="material-symbols-outlined text-[16px]" data-icon="star" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="font-label-md text-label-md">4.1</span>
+</div>
+</div>
+<div class="flex flex-wrap gap-xs">
+<span class="text-caption font-caption text-on-surface-variant">Italian, Cafe</span>
+<span class="text-caption font-caption text-on-surface-variant">•</span>
+<span class="text-caption font-caption text-on-surface-variant">₹500 for two</span>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant">Famous for their unlimited pizza deals and friendly service. Great for casual dining and vibrant group lunches.</p>
+</div>
+</div>
+</article>
+</div>
+<!-- Footer (Shared Component) -->
+<footer class="w-full mt-2xl border-t border-outline-variant/20">
+<div class="flex flex-col md:flex-row justify-between items-center px-xl py-xl max-w-7xl mx-auto gap-lg">
+<div class="flex flex-col items-center md:items-start gap-xs">
+<span class="font-title-lg text-title-lg text-on-surface font-bold">SmartDine AI</span>
+<span class="font-caption text-caption text-on-surface-variant opacity-80">© 2024 SmartDine AI. Gastronomic Precision.</span>
+</div>
+<div class="flex flex-wrap justify-center gap-xl">
+<a class="font-caption text-caption text-on-surface-variant hover:text-primary transition-colors" href="#">Privacy Policy</a>
+<a class="font-caption text-caption text-on-surface-variant hover:text-primary transition-colors" href="#">Terms of Service</a>
+<a class="font-caption text-caption text-on-surface-variant hover:text-primary transition-colors" href="#">AI Ethics</a>
+<a class="font-caption text-caption text-on-surface-variant hover:text-primary transition-colors" href="#">Partner with Us</a>
+</div>
+</div>
+</footer>
+</main>
+<!-- Micro-interactions Script -->
+<script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const slider = document.querySelector('.rating-slider');
+            const ratingDisplay = slider.parentElement.querySelector('.text-primary');
+            
+            slider.addEventListener('input', (e) => {
+                const val = (e.target.value / 10).toFixed(1);
+                ratingDisplay.textContent = `${val} / 5.0`;
+            });
+
+            // Smooth parallax for hero icon
+            document.addEventListener('mousemove', (e) => {
+                const moveX = (e.clientX - window.innerWidth / 2) / 50;
+                const moveY = (e.clientY - window.innerHeight / 2) / 50;
+                const heroIcon = document.querySelector('[data-icon="restaurant"]');
+                if (heroIcon) {
+                    heroIcon.style.transform = `translate(${moveX}px, ${moveY}px)`;
+                }
+            });
+        });
+    </script>
+</body></html>
