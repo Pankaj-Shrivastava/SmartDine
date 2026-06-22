@@ -9,12 +9,12 @@ def cleaned_df():
     return load_and_clean()
 
 def test_dataframe_not_empty(cleaned_df):
-    """Verify that the dataset is not empty and has a significant number of rows.
-    Threshold: at least 10% of the ~51k raw rows (i.e. 5,000+) must survive cleaning.
+    """Verify the dataset has a significant number of clean rows.
+    The pre-built parquet contains 9,216 restaurants after cleaning + dedup.
     """
     assert cleaned_df is not None
     assert len(cleaned_df) >= 5_000, (
-        f"Expected >= 5,000 rows after cleaning, got {len(cleaned_df)}"
+        f"Expected >= 5,000 rows, got {len(cleaned_df)}"
     )
 
 def test_rating_column_type(cleaned_df):
