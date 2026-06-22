@@ -58,7 +58,10 @@ def _apply_filters(
     if strict_location:
         res = res[res["location"].str.lower().str.contains(req.location.lower(), na=False)]
     else:
-        res = res[res["listed_in(city)"].str.lower().str.contains(req.location.lower(), na=False)]
+        if "listed_in(city)" in res.columns:
+            res = res[res["listed_in(city)"].str.lower().str.contains(req.location.lower(), na=False)]
+        else:
+            res = res[res["location"].str.lower().str.contains(req.location.lower(), na=False)]
 
     # 2. Budget filter
     if use_budget:
