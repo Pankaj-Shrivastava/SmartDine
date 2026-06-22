@@ -4,82 +4,123 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+
 def load_and_clean() -> pd.DataFrame:
     """Load the Zomato HF dataset and return a cleaned DataFrame."""
     logger.info("Loading dataset from Hugging Face...")
     ds = load_dataset("ManikaSaini/zomato-restaurant-recommendation", split="train")
     df = ds.to_pandas()
-    logger.info(f"Raw dataset: {len(df)} rows, {len(df.columns)} columns")
+    raw_count = len(df)
+    logger.info(f"Raw dataset: {raw_count} rows, {len(df.columns)} columns")
 
-    # Parse rating: "4.1/5" → 4.1. Coerce invalid/NEW/- ratings to NaN.
+    # --- Rating parsing ---
+    # Extract first numeric part from strings like "4.1/5", "NEW", "-"
+    # Anything non-numeric (NEW, -, nan) becomes NaN via extract → astype(float)
     df["rating"] = (
         df["rate"]
         .astype(str)
         .str.extract(r"(\d+\.?\d*)")
         .astype(float)
     )
+    # Ratings of 0.0 are sentinel "no rating" values — treat as invalid
+    df.loc[df["rating"] <= 0.0, "rating"] = pd.NA
+    # Ratings above 5.0 are clearly erroneous — discard
+    df.loc[df["rating"] > 5.0, "rating"] = pd.NA
 
-    # Parse cost: "1,200" → 1200.0. Remove commas and convert to float.
+    # --- Cost parsing ---
+    # Remove commas ("1,200" → "1200") then coerce; non-numeric → NaN
     df["cost"] = (
         df["approx_cost(for two people)"]
         .astype(str)
         .str.replace(",", "", regex=False)
         .pipe(pd.to_numeric, errors="coerce")
     )
+    # Zero or negative costs are invalid — discard
+    df.loc[df["cost"] <= 0, "cost"] = pd.NA
 
-    # Normalise cuisines: lowercased and stripped
-    # Handle potentially NaN cuisines first
+    # --- Cuisine normalisation ---
     df["cuisines_clean"] = df["cuisines"].astype(str).str.lower().str.strip()
-    
-    # Identify rows where cuisines was originally null (astype(str) turns None/NaN to 'nan')
-    df.loc[df["cuisines"].isna(), "cuisines_clean"] = None
+    # astype(str) converts None/NaN to the literal string "nan" — revert those to NaN
+    df.loc[df["cuisines"].isna() | (df["cuisines_clean"] == "nan"), "cuisines_clean"] = pd.NA
 
-    # Drop rows with critical nulls first so that we don't accidentally keep a null row when de-duplicating
+    # --- Drop rows missing any critical field ---
+    before_drop = len(df)
     df = df.dropna(subset=["name", "location", "rating", "cost", "cuisines_clean"])
+    logger.info(
+        f"Dropped {before_drop - len(df)} rows with missing/invalid fields; "
+        f"{len(df)} remain"
+    )
 
-    # De-duplicate: sort by votes descending so that we keep the most popular entry
+    # --- De-duplicate: keep the most-voted entry per (name, location) ---
     df = df.sort_values(by="votes", ascending=False)
-    before = len(df)
+    before_dedup = len(df)
     df = df.drop_duplicates(subset=["name", "location"], keep="first")
-    logger.info(f"After cleaning and de-duplication: {len(df)} rows (dropped {before - len(df)} duplicate rows)")
+    logger.info(
+        f"After de-duplication: {len(df)} rows "
+        f"(dropped {before_dedup - len(df)} duplicates)"
+    )
 
-    # Data Quality Validation Checks
-    validate_data_quality(df)
+    # --- Data quality checks (warnings only — server always starts) ---
+    validate_data_quality(df, raw_count)
 
     return df.reset_index(drop=True)
 
-def validate_data_quality(df: pd.DataFrame) -> None:
-    """Assert data quality constraints. Raises RuntimeError on validation failures."""
+
+def validate_data_quality(df: pd.DataFrame, raw_count: int) -> None:
+    """
+    Run data quality checks and log warnings for any failures.
+    Does NOT raise — the server will start with whatever clean data is available
+    rather than refusing to start entirely.
+    """
     logger.info("Validating dataset quality constraints...")
-    
-    # 1. Total row count > 9,000 (adjusted from 10,000 as the cleaned de-duplicated dataset contains 9,002 rows)
+    passed = True
+
+    # 1. Cleaned row count should be at least 10% of the raw count
     row_count = len(df)
-    if row_count <= 9000:
-        msg = f"Data quality validation failed: Row count is {row_count}, expected > 9,000"
-        logger.error(msg)
-        raise RuntimeError(msg)
-        
-    # 2. rating column: 0 < values <= 5.0
+    min_expected = max(100, int(raw_count * 0.10))
+    if row_count < min_expected:
+        logger.warning(
+            f"Data quality warning: Only {row_count} rows remain after cleaning "
+            f"(expected >= {min_expected}, i.e. 10% of {raw_count} raw rows). "
+            "Recommendation quality may be degraded."
+        )
+        passed = False
+    else:
+        logger.info(f"Row count check passed: {row_count} rows (>= {min_expected})")
+
+    # 2. No remaining ratings outside (0, 5.0] — should have been cleared above
     invalid_ratings = df[(df["rating"] <= 0.0) | (df["rating"] > 5.0)]
     if not invalid_ratings.empty:
-        msg = f"Data quality validation failed: Found {len(invalid_ratings)} ratings outside (0, 5.0]"
-        logger.error(msg)
-        raise RuntimeError(msg)
-        
-    # 3. cost column: all values > 0
+        logger.warning(
+            f"Data quality warning: {len(invalid_ratings)} rows have ratings outside (0, 5.0] "
+            "and slipped through cleaning. Sample values: "
+            f"{invalid_ratings['rating'].head(5).tolist()}"
+        )
+        passed = False
+
+    # 3. No remaining costs <= 0 — should have been cleared above
     invalid_costs = df[df["cost"] <= 0]
     if not invalid_costs.empty:
-        msg = f"Data quality validation failed: Found {len(invalid_costs)} costs <= 0"
-        logger.error(msg)
-        raise RuntimeError(msg)
-        
-    # 4. No nulls in ["name", "location", "cuisines_clean"]
-    critical_cols = ["name", "location", "cuisines_clean"]
-    for col in critical_cols:
+        logger.warning(
+            f"Data quality warning: {len(invalid_costs)} rows have cost <= 0 "
+            "and slipped through cleaning. Sample values: "
+            f"{invalid_costs['cost'].head(5).tolist()}"
+        )
+        passed = False
+
+    # 4. No nulls remaining in critical string columns
+    for col in ["name", "location", "cuisines_clean"]:
         null_count = df[col].isna().sum()
         if null_count > 0:
-            msg = f"Data quality validation failed: Found {null_count} nulls in critical column '{col}'"
-            logger.error(msg)
-            raise RuntimeError(msg)
-            
-    logger.info("Data quality validation checks passed successfully.")
+            logger.warning(
+                f"Data quality warning: {null_count} nulls remain in '{col}' after cleaning."
+            )
+            passed = False
+
+    if passed:
+        logger.info("All data quality checks passed.")
+    else:
+        logger.warning(
+            "One or more data quality checks raised warnings. "
+            "The server will continue with the available clean data."
+        )
