@@ -3,7 +3,7 @@ import asyncio
 import time
 import logging
 from contextlib import asynccontextmanager
-from fastapi import FastAPI, Request, Response
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from src.data.ingestion import load_and_clean
 from src.config import get_settings
@@ -85,20 +85,19 @@ app.include_router(router, prefix="/api/v1")
 
 
 @app.get("/health")
-async def health_check(response: Response):
+async def health_check():
     """
-    Returns the current loading status.
-    - 'loading': dataset is still being fetched (Railway health check will wait)
-    - 'ok': dataset is ready, restaurants_loaded > 0
-    - 'error': dataset load failed
+    Always returns HTTP 200 so Railway's health check never triggers a restart.
+    The 'status' field communicates the actual state to clients:
+    - 'loading': dataset is still being fetched in background
+    - 'ok': dataset is ready
+    - 'error': dataset load failed (server is up but recommendations unavailable)
     """
     if getattr(app.state, "loading", True):
-        response.status_code = 503
         return {"status": "loading", "restaurants_loaded": 0}
 
     if getattr(app.state, "loading_error", None):
-        response.status_code = 500
-        return {"status": "error", "detail": app.state.loading_error}
+        return {"status": "error", "detail": app.state.loading_error, "restaurants_loaded": 0}
 
     try:
         loaded = len(app.state.df)
