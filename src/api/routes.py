@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Request, HTTPException
+from fastapi import APIRouter, Request, HTTPException, Response
 from src.api.schemas import (
     RecommendationRequest, RecommendationResponse,
     Recommendation, QueryMetadata
@@ -7,14 +7,24 @@ from src.core.filter_engine import filter_restaurants, _get_budget_range
 from src.core.prompt_builder import build_system_prompt, build_user_prompt
 from src.core.llm_client import call_llm
 from src.core.parser import parse_llm_response
+from src.core.cache import make_cache_key, get_cached, set_cached
 import logging
+from groq import RateLimitError
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
 
 @router.post("/recommend", response_model=RecommendationResponse)
-async def get_recommendations(request: Request, body: RecommendationRequest):
+async def get_recommendations(request: Request, body: RecommendationRequest, response: Response):
     """Filter restaurants according to user preferences and use LLM to generate recommendations with AI explanations. Falls back to stub explanations on failure."""
+    cache_key = make_cache_key(body.model_dump())
+    cached_result = get_cached(cache_key)
+    if cached_result:
+        response.headers["X-Cache"] = "HIT"
+        return cached_result
+    
+    response.headers["X-Cache"] = "MISS"
+
     try:
         df = request.app.state.df
     except AttributeError as e:
@@ -54,7 +64,16 @@ async def get_recommendations(request: Request, body: RecommendationRequest):
     # Attempt to invoke the Groq LLM API and parse the response
     try:
         raw_response = await call_llm(system_prompt, user_prompt)
-        return parse_llm_response(raw_response, query_metadata)
+        parsed_response = parse_llm_response(raw_response, query_metadata)
+        set_cached(cache_key, parsed_response)
+        return parsed_response
+    except RateLimitError as e:
+        logger.error(f"Groq API rate limit exceeded: {e}")
+        raise HTTPException(
+            status_code=503,
+            detail="AI service is currently experiencing high traffic. Please try again in a minute.",
+            headers={"Retry-After": "60"}
+        )
     except Exception as e:
         logger.warning(
             f"LLM recommendation or parsing failed. Falling back to structured default: {e}",

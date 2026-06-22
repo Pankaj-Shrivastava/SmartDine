@@ -1,4 +1,5 @@
 import pytest
+from unittest.mock import patch
 from fastapi.testclient import TestClient
 from src.main import app
 
@@ -98,3 +99,70 @@ def test_unknown_location_returns_404(client):
     response = client.post("/api/v1/recommend", json=payload)
     assert response.status_code == 404
     assert "detail" in response.json()
+
+def test_cache_hit_returns_same_response(client):
+    """Verify that a duplicate request returns X-Cache: HIT."""
+    payload = {
+        "location": "Indiranagar",
+        "budget": "medium",
+        "top_n": 1
+    }
+    # First request
+    response1 = client.post("/api/v1/recommend", json=payload)
+    assert response1.status_code == 200
+    assert response1.headers.get("x-cache") == "MISS"
+    
+    # Second request
+    response2 = client.post("/api/v1/recommend", json=payload)
+    assert response2.status_code == 200
+    assert response2.headers.get("x-cache") == "HIT"
+
+def test_cache_miss_on_different_request(client):
+    """Verify that different requests don't hit the same cache."""
+    payload1 = {
+        "location": "Whitefield",
+        "budget": "low",
+        "top_n": 1
+    }
+    payload2 = {
+        "location": "Whitefield",
+        "budget": "high",
+        "top_n": 1
+    }
+    response1 = client.post("/api/v1/recommend", json=payload1)
+    assert response1.headers.get("x-cache") == "MISS"
+    
+    response2 = client.post("/api/v1/recommend", json=payload2)
+    assert response2.headers.get("x-cache") == "MISS"
+
+def test_health_endpoint_returns_ok(client):
+    """Verify health endpoint."""
+    response = client.get("/health")
+    assert response.status_code == 200
+    assert response.json()["status"] == "ok"
+    assert "restaurants_loaded" in response.json()
+
+@patch("src.api.routes.call_llm")
+def test_rate_limit_returns_503(mock_call_llm, client):
+    """Verify RateLimitError returns 503 with Retry-After header."""
+    import httpx
+    from groq import RateLimitError
+    # Mock RateLimitError
+    mock_call_llm.side_effect = RateLimitError(
+        message="Rate limit exceeded",
+        response=httpx.Response(status_code=429, request=httpx.Request("POST", "url")),
+        body=None
+    )
+    
+    payload = {
+        "location": "Jayanagar",
+        "budget": "high",
+        "top_n": 1
+    }
+    # Clear cache before doing this so we don't accidentally get a HIT
+    from src.core.cache import _cache
+    _cache.clear()
+    
+    response = client.post("/api/v1/recommend", json=payload)
+    assert response.status_code == 503
+    assert response.headers.get("retry-after") == "60"
