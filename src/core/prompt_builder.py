@@ -63,14 +63,16 @@ def build_user_prompt(
     cost_high: int
 ) -> str:
     """Format user preferences and inject candidates as a Markdown table."""
-    markdown_table = candidates[
-        ["name", "location", "cuisines", "rating", "cost", "rest_type", "book_table", "dish_liked"]
-    ].rename(columns={
+    desired_columns = ["name", "location", "cuisines", "rating", "cost", "votes", "rest_type", "book_table", "dish_liked"]
+    available_columns = [c for c in desired_columns if c in candidates.columns]
+
+    markdown_table = candidates[available_columns].rename(columns={
         "name": "Name",
         "location": "Location",
         "cuisines": "Cuisines",
         "rating": "Rating",
         "cost": "Cost (₹ for 2)",
+        "votes": "Votes",
         "rest_type": "Type",
         "book_table": "Book Table",
         "dish_liked": "Popular Dishes",
