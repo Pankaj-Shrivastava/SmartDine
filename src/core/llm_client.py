@@ -11,6 +11,7 @@ settings = get_settings()
     stop=stop_after_attempt(3),
     wait=wait_exponential(multiplier=1, min=1, max=10),
     before_sleep=before_sleep_log(logger, logging.WARNING),
+    reraise=True,
 )
 async def call_llm(system_prompt: str, user_prompt: str) -> dict:
     """Call Groq API and return the parsed JSON response dict."""
