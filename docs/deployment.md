@@ -54,7 +54,7 @@ User Browser
 - [ ] You have a [Vercel account](https://vercel.com) (free tier works)
 - [ ] Your code is pushed to a GitHub repository
 - [ ] You have your **Groq API key** — get one free at [console.groq.com](https://console.groq.com)
-- [ ] The `pre-main` branch is clean and ready to deploy
+- [ ] The `main` branch is clean and ready to deploy
 
 ---
 
@@ -107,7 +107,7 @@ You will set `VITE_API_URL` as a Vercel environment variable in Step 3 (it will 
 ```bash
 git add Procfile src/main.py frontend/src/api/client.js
 git commit -m "chore: add Procfile and production API URL support"
-git push origin pre-main
+git push origin main
 ```
 
 ---
@@ -119,14 +119,14 @@ git push origin pre-main
 1. Go to [railway.app](https://railway.app) → **New Project**
 2. Select **Deploy from GitHub repo**
 3. Connect your GitHub account if prompted
-4. Select your `SmartDine` repository and the `pre-main` branch
+4. Select your `SmartDine` repository and the `main` branch
 
 ### 4.2 — Configure the Service
 
 After Railway detects the repo:
 
 1. Click on the created service → **Settings** tab
-2. Under **Source**, confirm the **Branch** is set to `pre-main`
+2. Under **Source**, confirm the **Branch** is set to `main`
 3. Under **Build**, set the **Root Directory** to `/` (project root — where `requirements.txt` lives)
 4. Railway auto-detects Python and will run `pip install -r requirements.txt`
 
@@ -339,4 +339,4 @@ npm run dev
 
 ---
 
-*Last updated: 2026-06-22 | Branch: `pre-main`*
+*Last updated: 2026-06-22 | Branch: `main`*
