@@ -1,8 +1,9 @@
 import os
+import asyncio
 import time
 import logging
 from contextlib import asynccontextmanager
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
 from src.data.ingestion import load_and_clean
 from src.config import get_settings
@@ -15,19 +16,35 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-@asynccontextmanager
-async def lifespan(app: FastAPI):
-    logger.info("SmartDine API starting — loading dataset...")
+
+async def _load_dataset_background(app: FastAPI) -> None:
+    """Load and clean the dataset in a thread pool so the server port opens immediately."""
+    logger.info("SmartDine API starting — loading dataset in background...")
     try:
-        app.state.df = load_and_clean()
-        logger.info(f"Dataset ready: {len(app.state.df)} restaurants in memory")
+        # Run the blocking I/O + CPU work off the event loop thread
+        df = await asyncio.to_thread(load_and_clean)
+        app.state.df = df
+        app.state.loading = False
+        logger.info(f"Dataset ready: {len(df)} restaurants in memory")
     except Exception as e:
         logger.critical(f"Dataset load failure: {e}", exc_info=True)
-        # Aborting server startup as per Phase 5 / hardening recommendations:
-        # "If it fails, log a critical error and raise RuntimeError to abort server startup"
-        raise RuntimeError(f"Failed to load dataset on startup: {e}") from e
+        app.state.loading = False
+        app.state.loading_error = str(e)
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Mark as loading — the port binds immediately so Railway health checks pass
+    app.state.df = None
+    app.state.loading = True
+    app.state.loading_error = None
+
+    # Kick off dataset loading without blocking startup
+    asyncio.create_task(_load_dataset_background(app))
+
     yield
     logger.info("SmartDine API shutting down")
+
 
 app = FastAPI(
     title="SmartDine API",
@@ -54,6 +71,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
 @app.middleware("http")
 async def log_requests(request: Request, call_next):
     start = time.time()
@@ -62,13 +80,29 @@ async def log_requests(request: Request, call_next):
     logger.info(f"{request.method} {request.url.path} → {response.status_code} ({duration}ms)")
     return response
 
+
 app.include_router(router, prefix="/api/v1")
 
+
 @app.get("/health")
-async def health_check():
-    # Return loading status
+async def health_check(response: Response):
+    """
+    Returns the current loading status.
+    - 'loading': dataset is still being fetched (Railway health check will wait)
+    - 'ok': dataset is ready, restaurants_loaded > 0
+    - 'error': dataset load failed
+    """
+    if getattr(app.state, "loading", True):
+        response.status_code = 503
+        return {"status": "loading", "restaurants_loaded": 0}
+
+    if getattr(app.state, "loading_error", None):
+        response.status_code = 500
+        return {"status": "error", "detail": app.state.loading_error}
+
     try:
         loaded = len(app.state.df)
-    except AttributeError:
+    except (AttributeError, TypeError):
         loaded = 0
+
     return {"status": "ok", "restaurants_loaded": loaded}

@@ -25,6 +25,20 @@ async def get_recommendations(request: Request, body: RecommendationRequest, res
     
     response.headers["X-Cache"] = "MISS"
 
+    # Guard: dataset may still be loading in background (background startup task)
+    if getattr(request.app.state, "loading", True):
+        raise HTTPException(
+            status_code=503,
+            detail="Server is still loading the dataset. Please retry in a few seconds.",
+            headers={"Retry-After": "10"},
+        )
+
+    if getattr(request.app.state, "loading_error", None):
+        raise HTTPException(
+            status_code=500,
+            detail=f"Dataset failed to load: {request.app.state.loading_error}",
+        )
+
     try:
         df = request.app.state.df
     except AttributeError as e:
