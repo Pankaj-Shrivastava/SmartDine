@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { IoLocationSharp, IoWallet, IoPizza, IoStar, IoSparkles, IoList, IoSearch, IoAlertCircle, IoRefresh } from 'react-icons/io5';
+import { useTranslation } from 'react-i18next';
 
 const LOCATIONS = [
     "Koramangala",
@@ -28,6 +29,7 @@ const CUISINES = [
 ];
 
 export function SearchForm({ onSearch, isLoading }) {
+    const { t } = useTranslation();
     const [formData, setFormData] = useState({
         location: '',
         budget: 'medium',
@@ -50,7 +52,7 @@ export function SearchForm({ onSearch, isLoading }) {
     const handleSubmit = (e) => {
         e.preventDefault();
         if (!formData.location) {
-            setError('Location is required');
+            setError(t('searchForm.locationRequired'));
             return;
         }
         onSearch(formData);
@@ -64,7 +66,7 @@ export function SearchForm({ onSearch, isLoading }) {
                     <div className="space-y-xs">
                         <label className="flex items-center gap-xs font-label-md text-label-md text-on-surface-variant">
                             <IoLocationSharp className="text-[18px]" />
-                            Location <span className="text-error">*</span>
+                            {t('searchForm.location')} <span className="text-error">*</span>
                         </label>
                         <div className="relative">
                             <select 
@@ -74,7 +76,7 @@ export function SearchForm({ onSearch, isLoading }) {
                                 disabled={isLoading}
                                 className={`w-full bg-black/20 border ${error ? 'border-error' : 'border-outline-variant'} rounded-xl px-md py-sm ${!formData.location ? 'text-on-surface-variant' : 'text-on-surface'} focus:border-secondary focus:ring-1 focus:ring-secondary transition-all outline-none`}
                             >
-                                <option value="" disabled className="bg-background text-on-surface-variant">Select a neighborhood</option>
+                                <option value="" disabled className="bg-background text-on-surface-variant">{t('searchForm.locationPlaceholder')}</option>
                                 {LOCATIONS.map(loc => (
                                     <option key={loc} value={loc} className="bg-background text-on-surface">{loc}</option>
                                 ))}
@@ -91,7 +93,7 @@ export function SearchForm({ onSearch, isLoading }) {
                     <div className="space-y-xs">
                         <label className="flex items-center gap-xs font-label-md text-label-md text-on-surface-variant">
                             <IoWallet className="text-[18px]" />
-                            Budget for two
+                            {t('searchForm.budget')}
                         </label>
                         <select 
                             name="budget" 
@@ -100,9 +102,9 @@ export function SearchForm({ onSearch, isLoading }) {
                             disabled={isLoading}
                             className="w-full bg-black/20 border border-outline-variant rounded-xl px-md py-sm text-on-surface focus:border-secondary focus:ring-1 focus:ring-secondary transition-all outline-none"
                         >
-                            <option value="low" className="bg-background text-on-surface">Budget-Friendly (≤ ₹300)</option>
-                            <option value="medium" className="bg-background text-on-surface">Mid-Range (₹301–₹800)</option>
-                            <option value="high" className="bg-background text-on-surface">Premium (₹801+)</option>
+                            <option value="low" className="bg-background text-on-surface">{t('searchForm.budgetLow')}</option>
+                            <option value="medium" className="bg-background text-on-surface">{t('searchForm.budgetMedium')}</option>
+                            <option value="high" className="bg-background text-on-surface">{t('searchForm.budgetHigh')}</option>
                         </select>
                     </div>
 
@@ -110,7 +112,7 @@ export function SearchForm({ onSearch, isLoading }) {
                     <div className="space-y-xs">
                         <label className="flex items-center gap-xs font-label-md text-label-md text-on-surface-variant">
                             <IoPizza className="text-[18px]" />
-                            Cuisine
+                            {t('searchForm.cuisine')}
                         </label>
                         <select 
                             name="cuisine" 
@@ -119,7 +121,7 @@ export function SearchForm({ onSearch, isLoading }) {
                             disabled={isLoading}
                             className={`w-full bg-black/20 border border-outline-variant rounded-xl px-md py-sm ${!formData.cuisine ? 'text-on-surface-variant' : 'text-on-surface'} focus:border-secondary focus:ring-1 focus:ring-secondary transition-all outline-none`}
                         >
-                            <option value="" className="bg-background text-on-surface-variant">Any Cuisine</option>
+                            <option value="" className="bg-background text-on-surface-variant">{t('searchForm.cuisineAny')}</option>
                             {CUISINES.map(cuisine => (
                                 <option key={cuisine} value={cuisine} className="bg-background text-on-surface">{cuisine}</option>
                             ))}
@@ -130,7 +132,7 @@ export function SearchForm({ onSearch, isLoading }) {
                     <div className="space-y-xs">
                         <label className="flex items-center gap-xs font-label-md text-label-md text-on-surface-variant">
                             <IoList className="text-[18px]" />
-                            Results
+                            {t('searchForm.results')}
                         </label>
                         <input 
                             name="num_recommendations" 
@@ -150,7 +152,7 @@ export function SearchForm({ onSearch, isLoading }) {
                     <div className="flex justify-between items-center">
                         <label className="flex items-center gap-xs font-label-md text-label-md text-on-surface-variant">
                             <IoStar className="text-[18px]" />
-                            Minimum Rating
+                            {t('searchForm.minRating')}
                         </label>
                         <span className="text-primary font-bold">{formData.min_rating.toFixed(1)} / 5.0</span>
                     </div>
@@ -171,7 +173,7 @@ export function SearchForm({ onSearch, isLoading }) {
                 <div className="space-y-xs">
                     <label className="flex items-center gap-xs font-label-md text-label-md text-on-surface-variant">
                         <IoSparkles className="text-[18px]" />
-                        Additional Preferences
+                        {t('searchForm.additionalPrefs')}
                     </label>
                     <textarea 
                         name="additional_preferences" 
@@ -179,7 +181,7 @@ export function SearchForm({ onSearch, isLoading }) {
                         value={formData.additional_preferences} 
                         onChange={handleChange}
                         disabled={isLoading}
-                        placeholder="Describe the vibe... (e.g., Rooftop seating, quiet environment, pet friendly)"
+                        placeholder={t('searchForm.additionalPrefsPlaceholder')}
                         className="w-full bg-black/20 border border-outline-variant rounded-xl px-md py-sm text-on-surface focus:border-secondary focus:ring-1 focus:ring-secondary transition-all outline-none resize-none"
                     ></textarea>
                 </div>
@@ -192,12 +194,12 @@ export function SearchForm({ onSearch, isLoading }) {
                     {isLoading ? (
                         <>
                             <IoRefresh className="animate-spin text-[24px]" />
-                            Searching...
+                            <span>{t('searchForm.searching')}</span>
                         </>
                     ) : (
                         <>
                             <IoSearch className="text-[24px]" />
-                            Find My Perfect Restaurant
+                            <span>{t('searchForm.submit')}</span>
                         </>
                     )}
                 </button>

@@ -8,18 +8,33 @@ import { SkeletonCard } from './components/SkeletonCard';
 import { EmptyState } from './components/EmptyState';
 import { ErrorBanner } from './components/ErrorBanner';
 import { useRecommendations } from './hooks/useRecommendations';
+import { useTranslation } from 'react-i18next';
 
 function App() {
     const { results, metadata, isLoading, error, search, clearResults } = useRecommendations();
+    const { t, i18n } = useTranslation();
     const hasSearched = results !== null || error !== null;
+
+    const toggleLanguage = () => {
+        const newLang = i18n.language === 'en' ? 'hi' : 'en';
+        i18n.changeLanguage(newLang);
+    };
 
     return (
         <div className="dark bg-background text-on-background min-h-screen">
             <header className="fixed top-0 w-full z-50 bg-surface/40 backdrop-blur-md border-b border-white/10 shadow-sm">
                 <div className="flex justify-between items-center px-xl py-md max-w-7xl mx-auto">
                     <div className="flex items-center gap-xs">
-                        <span className="font-display-lg text-display-lg font-bold bg-gradient-to-r from-primary to-primary-container bg-clip-text text-transparent">SmartDine</span>
+                        <span className="font-display-lg text-display-lg font-bold bg-gradient-to-r from-primary to-primary-container bg-clip-text text-transparent">
+                            {t('app.title')}
+                        </span>
                     </div>
+                    <button
+                        onClick={toggleLanguage}
+                        className="px-md py-sm bg-surface-container-high hover:bg-surface-variant text-on-surface rounded-full font-label-md text-label-md transition-colors border border-outline-variant/30"
+                    >
+                        {i18n.language === 'en' ? 'हिन्दी' : 'English'}
+                    </button>
                 </div>
             </header>
 

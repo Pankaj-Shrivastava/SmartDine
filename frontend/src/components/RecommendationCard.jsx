@@ -1,7 +1,9 @@
 import React from 'react';
 import { IoTrophy, IoStar, IoStarOutline, IoPizza, IoWallet, IoSparkles } from 'react-icons/io5';
+import { useTranslation } from 'react-i18next';
 
 export function RecommendationCard({ recommendation, index }) {
+    const { t } = useTranslation();
     const { rank, name, cuisine, rating, cost_for_two, explanation } = recommendation;
     
     // Determine rank styling
@@ -39,7 +41,7 @@ export function RecommendationCard({ recommendation, index }) {
                 {/* Rank Badge */}
                 <div className={`absolute top-0 left-0 font-bold px-2 py-1 text-[10px] rounded-br-lg uppercase tracking-wider flex items-center gap-1 ${badgeStyle}`}>
                     {(rank <= 3) && <IoTrophy className="text-[12px]" />}
-                    Rank #{rank}
+                    {t('results.rank', { rank })}
                 </div>
                 
                 {/* Content */}
@@ -61,7 +63,7 @@ export function RecommendationCard({ recommendation, index }) {
                             <div className="flex">{renderStars()}</div> {rating}/5
                         </span>
                         <span className="flex items-center gap-1 text-caption font-caption text-on-surface-variant border border-tertiary/30 bg-surface-container-high px-2 py-1 rounded-full">
-                            <IoWallet className="text-tertiary" /> ₹{cost_for_two} for two
+                            <IoWallet className="text-tertiary" /> ₹{cost_for_two} {t('results.forTwo')}
                         </span>
                     </div>
                     
@@ -69,7 +71,7 @@ export function RecommendationCard({ recommendation, index }) {
                     <div className="bg-primary/5 border-l-4 border-primary p-md rounded-r-lg mt-md">
                         <div className="flex items-center gap-1 mb-1">
                             <IoSparkles className="text-primary text-[14px]" />
-                            <span className="font-label-md text-label-md text-primary uppercase">AI Insight</span>
+                            <span className="font-label-md text-label-md text-primary uppercase">{t('results.aiInsight')}</span>
                         </div>
                         <p className="font-body-md text-body-md text-on-surface-variant italic">
                             "{explanation}"

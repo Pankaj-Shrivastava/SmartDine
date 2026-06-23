@@ -1,0 +1,40 @@
+{
+  "app": {
+    "title": "SmartDine"
+  },
+  "hero": {
+    "subtitle": "AI-Powered Restaurant Recommendations",
+    "description": "Discover your perfect dining experience, powered by AI"
+  },
+  "searchForm": {
+    "location": "Location",
+    "locationPlaceholder": "Select a neighborhood",
+    "budget": "Budget for two",
+    "budgetLow": "Budget-Friendly (≤ ₹300)",
+    "budgetMedium": "Mid-Range (₹301–₹800)",
+    "budgetHigh": "Premium (₹801+)",
+    "cuisine": "Cuisine",
+    "cuisineAny": "Any Cuisine",
+    "results": "Results",
+    "minRating": "Minimum Rating",
+    "additionalPrefs": "Additional Preferences",
+    "additionalPrefsPlaceholder": "Describe the vibe... (e.g., Rooftop seating, quiet environment, pet friendly)",
+    "searching": "Searching...",
+    "submit": "Find My Perfect Restaurant",
+    "locationRequired": "Location is required"
+  },
+  "emptyState": {
+    "title": "Ready to discover your next favorite restaurant?",
+    "description": "Fill in your preferences above and let our AI find the perfect dining spot for you.",
+    "suggestion": "Try 'Koramangala' with 'Mid-Range' budget for popular spots"
+  },
+  "results": {
+    "header": "Top {{count}} Picks For You",
+    "anyCuisine": "Any Cuisine",
+    "rating": "{{rating}}+ Rating",
+    "candidates": "{{count}} candidates",
+    "rank": "Rank #{{rank}}",
+    "forTwo": "for two",
+    "aiInsight": "AI Insight"
+  }
+}
